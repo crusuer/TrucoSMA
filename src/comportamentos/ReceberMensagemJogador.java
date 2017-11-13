@@ -32,7 +32,7 @@ public class ReceberMensagemJogador extends CyclicBehaviour
     	List<Carta> cartas = ordenarCartas(carta1,carta2,carta3);
 
     	Carta cartaEscolhida = escolherCarta(cartas);
-
+        //System.out.println(cartaEscolhida.getValor());
         ACLMessage msg = myAgent.receive();
            
         if(msg != null) 
@@ -52,10 +52,10 @@ public class ReceberMensagemJogador extends CyclicBehaviour
             block();
     }
     private List<Carta> ordenarCartas(Carta carta1,Carta carta2,Carta carta3){
-    	List<Carta> cartasRetorno = new ArrayList<Carta>();
-    	if((carta1.getValor() < carta2.getValor()) && (carta1.getValor() < carta3.getValor())){
+    	List<Carta> cartasRetorno = new ArrayList<>();
+    	if((carta1.compareTo(carta2) < 0) && (carta1.compareTo(carta3) < 0)){
     		cartasRetorno.add(carta1);
-    		if(carta2.getValor()<carta3.getValor()){
+    		if(carta2.compareTo(carta3) < 0){
     			cartasRetorno.add(carta2);
     			cartasRetorno.add(carta3);
     		}
@@ -63,9 +63,9 @@ public class ReceberMensagemJogador extends CyclicBehaviour
     			cartasRetorno.add(carta3);
     			cartasRetorno.add(carta2);
     		}
-    	} else if((carta2.getValor() < carta1.getValor()) && (carta2.getValor() < carta3.getValor())){
+    	} else if((carta2.compareTo(carta1) < 0) && (carta2.compareTo(carta3) < 0)){
     		cartasRetorno.add(carta2);
-    		if(carta1.getValor()<carta3.getValor()){
+    		if(carta1.compareTo(carta3) < 0){
     			cartasRetorno.add(carta1);
     			cartasRetorno.add(carta3);
     		}
@@ -75,7 +75,7 @@ public class ReceberMensagemJogador extends CyclicBehaviour
     		}
     	} else {
     		cartasRetorno.add(carta3);
-    		if(carta1.getValor()<carta2.getValor()){
+    		if(carta1.compareTo(carta2) < 0){
     			cartasRetorno.add(carta1);
     			cartasRetorno.add(carta2);
     		}
@@ -87,11 +87,12 @@ public class ReceberMensagemJogador extends CyclicBehaviour
     	return cartasRetorno;
     }
     private Carta escolherCarta(List<Carta> cartas){
-    	Carta carta = cartas.get(0);
+    	Carta carta;
     	int rodada=1;
     	int jogador=1;
     	int valorMaiorRodada=8;
     	boolean parceiroGanhando = false;
+        boolean rodadaAnteriorEmpatada = false;
     	//rodada
     	if(rodada == 1){
     		//primeiro a jogar
@@ -135,7 +136,47 @@ public class ReceberMensagemJogador extends CyclicBehaviour
     			}
     		}
     	} else{
-    		
+            //primeira rodada empatou
+            if(rodadaAnteriorEmpatada){
+                carta = cartas.get(2);
+            }
+            else {
+                //parceiro ja jogou
+                if(jogador > 2){
+                    //parceiro ganhando
+                    if(parceiroGanhando){
+                        carta = cartas.get(0);
+                    } else {
+                        //carta maior que a mesa
+                        if(cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada){
+                            if(cartas.get(0).getValor() > valorMaiorRodada){
+                                carta = cartas.get(gerador.nextInt(3));
+                            } else if(cartas.get(1).getValor() > valorMaiorRodada){
+                                carta = cartas.get(gerador.nextInt(2)+1);
+                            } else {
+                                carta = cartas.get(2);
+                            }
+                        }
+                        else{
+                            carta = cartas.get(2);
+                        }
+                    }
+                } else {
+                    //carta maior que a mesa
+                    if(cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada){
+                        if(cartas.get(0).getValor() > valorMaiorRodada){
+                            carta = cartas.get(gerador.nextInt(3));
+                        } else if(cartas.get(1).getValor() > valorMaiorRodada){
+                            carta = cartas.get(gerador.nextInt(2)+1);
+                        } else {
+                            carta = cartas.get(2);
+                        }
+                    }
+                    else{
+                        carta = cartas.get(2);
+                    }
+                }
+            }
     	}
     	
     	return carta;

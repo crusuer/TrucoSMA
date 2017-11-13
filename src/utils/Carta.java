@@ -7,7 +7,7 @@ package utils;
 
 import projetosmatruco.ProjetoSMATruco;
 
-public class Carta {
+public class Carta implements Comparable<Carta>{
     private int numero;
     private int naipe;
     private int valor;    
@@ -70,4 +70,9 @@ public class Carta {
     public void setManilha(boolean manilha) {
         this.manilha = manilha;
     }
+    
+    @Override
+    public int compareTo(Carta outraCarta) {   
+        return this.valor - outraCarta.valor;                
+    }  
 }
