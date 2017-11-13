@@ -15,6 +15,6 @@ public class Jogador extends Agent{
     @Override
    protected void setup() 
    {
-      addBehaviour(new comportamentos.ReceberMensagemJogador(this));
+    	addBehaviour(new comportamentos.ReceberMensagemJogador(this));
    }
 }
