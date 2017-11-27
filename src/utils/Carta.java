@@ -5,38 +5,41 @@
  */
 package utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import projetosmatruco.ProjetoSMATruco;
 
-public class Carta implements Comparable<Carta>{
+public class Carta implements Comparable<Carta> {
+
     private int numero;
     private int naipe;
-    private int valor;    
-    private boolean manilha;
-    
-    public Carta(int numero,ProjetoSMATruco.Naipes naipe,int valor, boolean manilha){
-        switch (naipe){
-            case Ouro:
-                this.naipe = naipe.ordinal();
-                break;
-            case Espada:
-                this.naipe = naipe.ordinal();
-                break;
-            case Copas:
-                this.naipe = naipe.ordinal();
-                break;
-            case Paus:
-                this.naipe = naipe.ordinal();
-                break;
-        }
-                
-        if (manilha){
-            this.valor = 11 + this.naipe;
-            
-        } else {
-            this.valor = valor;
-        }
+    private final String naipeStr;
+    private int valor;
+    private static final Map<Integer, Integer> mapa = createMap();
+
+    private static Map<Integer, Integer> createMap() {
+        //mapa do número da carta e seu respectivo valor no jogo
+        Map<Integer, Integer> maps = new HashMap<>();
+        maps.put(4, 1);
+        maps.put(5, 2);
+        maps.put(6, 3);
+        maps.put(7, 4);
+        maps.put(8, 5);//Q
+        maps.put(9, 6);//J
+        maps.put(10, 7);//K
+        maps.put(1, 8);//A
+        maps.put(2, 9);
+        maps.put(3, 10);
+
+        return maps;
+    }
+
+    public Carta(int numero, ProjetoSMATruco.Naipes naipe) {
+        this.naipe = naipe.ordinal();
+        naipeStr = naipe.name();
+
         this.numero = numero;
-        this.manilha = manilha;
+        valor = mapa.get(numero);
     }
 
     public int getNumero() {
@@ -55,24 +58,28 @@ public class Carta implements Comparable<Carta>{
         this.naipe = naipe;
     }
 
+    public String getNaipeStr() {
+        return naipeStr;
+    }
+
     public int getValor() {
         return valor;
     }
 
-    public void setValor(int valor) {
-        this.valor = valor;
-    }
-    
-    public boolean isManilha() {
-        return manilha;
+    public void setValor(boolean manilha) {
+        if (manilha) {
+            valor = 11 + this.naipe;
+        } else {
+            valor = mapa.get(numero);
+        }
     }
 
-    public void setManilha(boolean manilha) {
-        this.manilha = manilha;
-    }
-    
     @Override
-    public int compareTo(Carta outraCarta) {   
-        return this.valor - outraCarta.valor;                
-    }  
+    public int compareTo(Carta outraCarta) {
+        return this.valor - outraCarta.valor;
+    }
+    @Override
+    public String toString() {
+        return numero+" de "+naipeStr;
+    }
 }

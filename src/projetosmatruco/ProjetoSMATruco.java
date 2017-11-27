@@ -21,15 +21,15 @@ public class ProjetoSMATruco {
     static ContainerController containerController;
     static AgentController agentController;
 
-    public enum CartasEnum {
-        Q(11), J(12), K(13), A(14);
+    /*public enum CartasEnum {
+        Q(8), J(9), K(10), A(1);
 
-        public int valorCarta;
+        public int numeroCarta;
 
-        CartasEnum(int valor) {
-            valorCarta = valor;
+        CartasEnum(int numero) {
+            numeroCarta = numero;
         }
-    }
+    }*/
     public enum Naipes{ Ouro, Espada, Copas, Paus };
 
     public static void main(String[] args) throws InterruptedException {
@@ -37,9 +37,9 @@ public class ProjetoSMATruco {
         //startMainContainer(Profile.LOCAL_HOST, Profile.LOCAL_PORT, "UFABC");
         startMainContainer("127.0.0.1", Profile.LOCAL_PORT, "UFABC");
 
-        Carta carta1 = new Carta(4, Naipes.Paus, 1, false);
-        Carta carta2 = new Carta(3, Naipes.Ouro, 10, false);
-        Carta carta3 = new Carta(7, Naipes.Espada, 4, false);
+        Carta carta1 = new Carta(4, Naipes.Paus);
+        Carta carta2 = new Carta(3, Naipes.Ouro);
+        Carta carta3 = new Carta(7, Naipes.Espada);
         
         //adicionando agente
         //SINTAXE: addAgent(container, nome_do_agente, classe, parametros de inicializacao)
