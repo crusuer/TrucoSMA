@@ -31,7 +31,7 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
         List<Carta> cartas = ordenarCartas(carta1, carta2, carta3);
 
         //Carta cartaEscolhida = escolherCarta(cartas);
-        System.out.println(acao(cartas, 1, 1, 1, 0));
+        System.out.println(acao(cartas, 1, 1, 10, 0, 14,0,0,false));
         ACLMessage msg = myAgent.receive();
 
         if (msg != null) {
@@ -49,18 +49,22 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
         }
     }
 
-    private String acao(List<Carta> cartas, int rodada, int jogador, int jogadorGanhando, int valorGanhando) {
+    private String acao(List<Carta> cartas, int rodada, int jogador, int jogadorGanhando, int valorGanhando, int maiorValorPossivel, int vencedorPrimeiraRodada, int vencedorSegundaRodada, boolean meuTimeTrucou) {
+        boolean parceiroGanhando = (jogador+jogadorGanhando == 4 || jogador+jogadorGanhando == 6);
         switch (rodada) {
+            //primeira rodada
             case 1:
                 if (gerador.nextDouble() > 0.9) {
-                    return "Truco aleatório";
+                    if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                        return "Truco aleatório";
+                    }                    
                 }
                 switch (jogador) {
                     case 1:
                         return cartas.remove(gerador.nextInt(3)).toString();
                     case 2:
                     case 3:
-                        if (jogadorGanhando == 1 && valorGanhando > 7) {
+                        if (parceiroGanhando == true && valorGanhando > 7) {
                             return cartas.remove(0).toString();
                         } else if (cartas.get(2).getValor() < valorGanhando) {
                             return cartas.remove(0).toString();
@@ -68,17 +72,41 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                             return cartas.remove(2).toString();
                         }
                     case 4:
-                        if (jogadorGanhando == 2) {
+                        if (parceiroGanhando == true) {
                             return cartas.remove(0).toString();
                         } else if (cartas.get(2).getValor() < valorGanhando) {
                             return cartas.remove(0).toString();
                         } else if (cartas.get(1).getValor() < valorGanhando) {
-                            return "Truco!";
+                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                                return "Truco!";
+                            }
                         } else if (cartas.get(1).getValor() > 7) {
-                            return "Truco!";
+                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                                return "Truco!";
+                            }
                         } else {
                             return cartas.remove(2).toString();
                         }
+                }
+            //segunda rodada
+            case 2:
+                if(vencedorPrimeiraRodada == 0){
+                    if(cartaBoa(cartas) == true){
+                        return "Truco!";
+                    } else {
+                        return cartas.remove(1).toString();
+                    }
+                } else if (vencedorPrimeiraRodada == 1){
+                    if(jogador == 1){
+                        System.out.println("Comunicar");
+                        if(cartaBoa(cartas) == true){
+                            
+                        }
+                        else{
+                            return cartas.remove(gerador.nextInt(2)).toString();
+                        }
+                    }
+                } else{
                 }
             default:
                 return "";
@@ -92,6 +120,10 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
             }
         }
         return false;
+    }
+    
+    private boolean possoTrucar(boolean meuTimeTrucou, boolean parceiroGanhando, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int valorGanhando, int maiorValorPossivel) {
+        return !(meuTimeTrucou || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)));
     }
 
     private List<Carta> ordenarCartas(Carta carta1, Carta carta2, Carta carta3) {
