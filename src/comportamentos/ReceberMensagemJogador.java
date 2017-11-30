@@ -7,6 +7,8 @@ package comportamentos;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import utils.Carta;
 
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ReceberMensagemJogador extends CyclicBehaviour {
+public class ReceberMensagemJogador extends Behaviour {
 
     Random gerador = new Random();
 
@@ -31,8 +33,9 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
         List<Carta> cartas = ordenarCartas(carta1, carta2, carta3);
 
         //Carta cartaEscolhida = escolherCarta(cartas);
-        System.out.println(acao(cartas, 1, 1, 10, 0, 14,0,0,false));
-        ACLMessage msg = myAgent.receive();
+        System.out.println(acao(cartas, 1, 4, 1, 13, 14, 0, 0, false));
+        System.out.println(acao(cartas, 2, 1, 10, 0, 14, 0, 0, false));
+        /*ACLMessage msg = myAgent.receive();
 
         if (msg != null) {
             ACLMessage reply = msg.createReply();
@@ -46,20 +49,31 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
             }
         } else {
             block();
-        }
+        }*/
+    }
+
+    @Override
+    public boolean done() {
+        return true;
+    }
+    
+    @Override
+    public int onEnd() {
+        //TODO limpar parâmetros
+        return 1;
     }
 
     private String acao(List<Carta> cartas, int rodada, int jogador, int jogadorGanhando, int valorGanhando, int maiorValorPossivel, int vencedorPrimeiraRodada, int vencedorSegundaRodada, boolean meuTimeTrucou) {
-        boolean parceiroGanhando = (jogador+jogadorGanhando == 4 || jogador+jogadorGanhando == 6);
+        boolean parceiroGanhando = (jogador == 3 && jogadorGanhando == 1) || (jogador == 4 && jogadorGanhando == 2);
         boolean blefar = false;
         boolean parceiroCartaBoa = false;
         switch (rodada) {
             //primeira rodada
             case 1:
                 if (gerador.nextDouble() > 0.9) {
-                    if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                    if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                         return "Truco aleatório";
-                    }                    
+                    }
                 }
                 switch (jogador) {
                     case 1:
@@ -79,11 +93,11 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                         } else if (cartas.get(2).getValor() < valorGanhando) {
                             return cartas.remove(0).toString();
                         } else if (cartas.get(1).getValor() < valorGanhando) {
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                            if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                                 return "Truco!";
                             }
                         } else if (cartas.get(1).getValor() > 7) {
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                            if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                                 return "Truco!";
                             }
                         } else {
@@ -92,102 +106,92 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                 }
             //segunda rodada
             case 2:
-                if(vencedorPrimeiraRodada == 0){
-                    if(cartaBoa(cartas) == true && possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                if (vencedorPrimeiraRodada == 0) {
+                    if (cartaBoa(cartas) == true && possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                         return "Truco!";
                     } else {
                         return cartas.remove(1).toString();
                     }
-                } else if (vencedorPrimeiraRodada == 1){
-                    if(jogador == 1){
+                } else if (vencedorPrimeiraRodada == 1) {
+                    if (jogador == 1) {
                         System.out.println("Comunicar");
-                        if(cartaBoa(cartas) == true){
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                        if (cartaBoa(cartas) == true) {
+                            if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                                 return "Truco!";
-                            } else{
+                            } else {
                                 return cartas.remove(1).toString();
                             }
-                        }
-                        else{
+                        } else {
                             return cartas.remove(gerador.nextInt(2)).toString();
                         }
-                    } else{
-                        if(blefar == true){
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
-                                return "Truco!";
-                            } else{
-                                if(parceiroGanhando == true && valorGanhando > 8){
-                                    return cartas.remove(0).toString();
-                                } else {
-                                    if(cartas.get(1).getValor() > valorGanhando){
-                                        return cartas.remove(1).toString();
-                                    } else{
-                                        return cartas.remove(0).toString();
-                                    }
-                                }
-                            }
+                    } else if (blefar == true) {
+                        if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
+                            return "Truco!";
+                        } else if (parceiroGanhando == true && valorGanhando > 8) {
+                            return cartas.remove(0).toString();
+                        } else if (cartas.get(1).getValor() > valorGanhando) {
+                            return cartas.remove(1).toString();
+                        } else {
+                            return cartas.remove(0).toString();
                         }
                     }
-                } else{
-                    if(jogador == 2){
-                        System.out.println("Comunicar");
-                        parceiroCartaBoa = false;
-                        if(cartaBoa(cartas) == true){
-                            return cartas.remove(gerador.nextInt(2)).toString();
-                        } else if(parceiroCartaBoa == true){
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
-                                return "Truco!";
-                            } else {
-                                return cartas.remove(1).toString();
-                            }
-                        } else{
+                } else if (jogador == 2) {
+                    System.out.println("Comunicar");
+                    parceiroCartaBoa = false;
+                    if (cartaBoa(cartas) == true) {
+                        return cartas.remove(gerador.nextInt(2)).toString();
+                    } else if (parceiroCartaBoa == true) {
+                        if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
+                            return "Truco!";
+                        } else {
                             return cartas.remove(1).toString();
                         }
-                    } else if(jogador == 4){
-                        if(blefar == true){
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
-                                return "Truco!";
-                            } else {
-                                return cartas.remove(1).toString();
-                            }
+                    } else {
+                        return cartas.remove(1).toString();
+                    }
+                } else if (jogador == 4) {
+                    if (blefar == true) {
+                        if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
+                            return "Truco!";
+                        } else {
+                            return cartas.remove(1).toString();
                         }
+                    } else if (parceiroGanhando == true) {
+                        return cartas.remove(0).toString();
                     }
                 }
             //terceira rodada
             case 3:
-                if(cartaBoa(cartas) == true){
-                    if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                if (cartaBoa(cartas) == true) {
+                    if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                         return "Truco!";
-                    } else{
+                    } else {
+                        return cartas.remove(0).toString();
+                    }
+                } else if (jogador == 4 && cartas.get(0).getValor() > valorGanhando) {
+                    if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
+                        return "Truco!";
+                    } else {
                         return cartas.remove(0).toString();
                     }
                 } else {
-                    if(jogador == 4 && cartas.get(0).getValor() > valorGanhando){
-                        if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
+                    double soma = 0;
+                    if (jogador == 2 || jogador == 3) {
+                        soma += 0.1;
+                    }
+                    System.out.println("Comunicar");
+                    parceiroCartaBoa = false;
+                    if (parceiroCartaBoa == true) {
+                        soma += 0.6;
+                    }
+                    if (gerador.nextDouble() > (1 - soma)) {
+                        if (possoTrucar(meuTimeTrucou, parceiroGanhando, vencedorPrimeiraRodada, vencedorSegundaRodada, valorGanhando, maiorValorPossivel)) {
                             return "Truco!";
-                        } else{
+                        } else {
                             return cartas.remove(0).toString();
                         }
                     } else {
-                        double soma = 0;
-                        if(jogador == 2 || jogador == 3){
-                            soma += 0.1;
-                        }
-                        System.out.println("Comunicar");
-                        parceiroCartaBoa = false;
-                        if(parceiroCartaBoa == true){
-                            soma += 0.6;
-                        }
-                        if(gerador.nextDouble(); > (1-soma)){
-                            if(possoTrucar(meuTimeTrucou,parceiroGanhando,vencedorPrimeiraRodada,vencedorSegundaRodada,valorGanhando, maiorValorPossivel)){
-                                return "Truco!";
-                            } else{
-                                return cartas.remove(0).toString();
-                            }
-                        }
-                        else {
-                            return cartas.remove(0).toString();
-                        }
+                        return cartas.remove(0).toString();
                     }
                 }
             default:
@@ -203,7 +207,7 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
         }
         return false;
     }
-    
+
     private boolean possoTrucar(boolean meuTimeTrucou, boolean parceiroGanhando, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int valorGanhando, int maiorValorPossivel) {
         return !(meuTimeTrucou || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)));
     }
@@ -254,14 +258,12 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
             if (jogador == 1) {
                 carta = cartas.get(gerador.nextInt(3));
             } else //parceiro ja jogou
-            {
-                if (jogador > 2) {
+             if (jogador > 2) {
                     //parceiro ganhando
                     if (parceiroGanhando) {
                         carta = cartas.get(0);
                     } else //carta maior que a mesa
-                    {
-                        if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
+                     if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
                             if (cartas.get(0).getValor() > valorMaiorRodada) {
                                 carta = cartas.get(gerador.nextInt(3));
                             } else if (cartas.get(1).getValor() > valorMaiorRodada) {
@@ -272,10 +274,8 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                         } else {
                             carta = cartas.get(2);
                         }
-                    }
                 } else //carta maior que a mesa
-                {
-                    if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
+                 if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
                         if (cartas.get(0).getValor() > valorMaiorRodada) {
                             carta = cartas.get(gerador.nextInt(3));
                         } else if (cartas.get(1).getValor() > valorMaiorRodada) {
@@ -286,21 +286,16 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                     } else {
                         carta = cartas.get(2);
                     }
-                }
-            }
         } else //primeira rodada empatou
-        {
-            if (rodadaAnteriorEmpatada) {
+         if (rodadaAnteriorEmpatada) {
                 carta = cartas.get(2);
             } else //parceiro ja jogou
-            {
-                if (jogador > 2) {
+             if (jogador > 2) {
                     //parceiro ganhando
                     if (parceiroGanhando) {
                         carta = cartas.get(0);
                     } else //carta maior que a mesa
-                    {
-                        if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
+                     if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
                             if (cartas.get(0).getValor() > valorMaiorRodada) {
                                 carta = cartas.get(gerador.nextInt(3));
                             } else if (cartas.get(1).getValor() > valorMaiorRodada) {
@@ -311,10 +306,8 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                         } else {
                             carta = cartas.get(2);
                         }
-                    }
                 } else //carta maior que a mesa
-                {
-                    if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
+                 if (cartas.get(0).getValor() > valorMaiorRodada || cartas.get(1).getValor() > valorMaiorRodada || cartas.get(2).getValor() > valorMaiorRodada) {
                         if (cartas.get(0).getValor() > valorMaiorRodada) {
                             carta = cartas.get(gerador.nextInt(3));
                         } else if (cartas.get(1).getValor() > valorMaiorRodada) {
@@ -325,9 +318,6 @@ public class ReceberMensagemJogador extends CyclicBehaviour {
                     } else {
                         carta = cartas.get(2);
                     }
-                }
-            }
-        }
 
         return carta;
     }
