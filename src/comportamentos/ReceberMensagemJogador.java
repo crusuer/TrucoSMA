@@ -10,22 +10,62 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
+import java.io.IOException;
 import utils.Carta;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReceberMensagemJogador extends Behaviour {
 
     Random gerador = new Random();
-
+    List<Carta> cartas = new ArrayList<>();
     public ReceberMensagemJogador(Agent a) {
         super(a);
     }
 
     @Override
-    public void action() {
+    public void action() {        
+        //MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+        ACLMessage msg = myAgent.blockingReceive();
+
+        if (msg != null) {
+            ACLMessage reply = msg.createReply();
+            //String content = msg.getContent();
+            String tipoMensagem = msg.getOntology();
+            if(tipoMensagem.equalsIgnoreCase("Iniciar")){
+                try {
+                    cartas.clear();
+                    Object[] carts = (Object[]) msg.getContentObject();
+                    ordenarCartas((Carta) carts[0],(Carta) carts[1],(Carta) carts[2]);
+                } catch (UnreadableException ex) {
+                    Logger.getLogger(ReceberMensagemJogador.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else if(tipoMensagem.equalsIgnoreCase("Jogada")){
+                try {
+                    int [] nums = (int[]) msg.getContentObject();
+                    decisao(cartas, reply, nums[0], nums[1], nums[2], nums[3], nums[4], nums[5], nums[6], nums[7]);
+                } catch (UnreadableException ex) {
+                    Logger.getLogger(ReceberMensagemJogador.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            
+            /*if (content.equalsIgnoreCase("Fogo")) {
+                reply.setPerformative(ACLMessage.INFORM);
+                reply.setContent("Recebi seu aviso! Obrigado por auxiliar meu servico");
+                myAgent.send(reply);
+                System.out.println("O agente " + msg.getSender().getName() + " avisou de um incendio");
+                System.out.println("Vou ativar os procedimentos de combate ao incendio!");
+            }*/
+        }        
+        
+        /*
         Object[] args = myAgent.getArguments();
         Carta carta1 = (Carta) args[0];
         Carta carta2 = (Carta) args[1];
@@ -37,27 +77,13 @@ public class ReceberMensagemJogador extends Behaviour {
 
         //Carta cartaEscolhida = escolherCarta(cartas);
         decisao(cartas, 1, 4, 1, 13, 14, 0, 0, false);
-        decisao(cartas, 2, 1, 10, 0, 14, 0, 0, false);
-        /*ACLMessage msg = myAgent.receive();
-
-        if (msg != null) {
-            ACLMessage reply = msg.createReply();
-            String content = msg.getContent();
-            if (content.equalsIgnoreCase("Fogo")) {
-                reply.setPerformative(ACLMessage.INFORM);
-                reply.setContent("Recebi seu aviso! Obrigado por auxiliar meu servico");
-                myAgent.send(reply);
-                System.out.println("O agente " + msg.getSender().getName() + " avisou de um incendio");
-                System.out.println("Vou ativar os procedimentos de combate ao incendio!");
-            }
-        } else {
-            block();
-        }*/
+        decisao(cartas, 2, 1, 10, 0, 14, 0, 0, false);*/
+        
     }
 
     @Override
     public boolean done() {
-        return true;
+        return false;
     }
     
     @Override
@@ -66,7 +92,7 @@ public class ReceberMensagemJogador extends Behaviour {
         return 1;
     }
 
-    private void decisao(List<Carta> cartas, int rodada, int jogador, int jogadorGanhando, int valorGanhando, int maiorValorPossivel, int vencedorPrimeiraRodada, int vencedorSegundaRodada, boolean meuTimeTrucou) {
+    private void decisao(List<Carta> cartas, ACLMessage reply, int rodada, int jogador, int jogadorGanhando, int valorGanhando, int maiorValorPossivel, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int meuTimeTrucou) {
         boolean parceiroGanhando = (jogador == 3 && jogadorGanhando == 1) || (jogador == 4 && jogadorGanhando == 2);
         boolean blefar = false;
         boolean parceiroCartaBoa = false;
@@ -94,7 +120,7 @@ public class ReceberMensagemJogador extends Behaviour {
                         break;
                     case 4:
                         if (parceiroGanhando == true) {
-                            System.out.println(cartas.remove(0).toString());
+                            responderCarta(0,reply);
                         } else if (cartas.get(2).getValor() < valorGanhando) {
                             System.out.println(cartas.remove(0).toString());
                         } else {
@@ -235,6 +261,20 @@ public class ReceberMensagemJogador extends Behaviour {
         }
         return false;
     }
+    
+    private void responderCarta(int carta, ACLMessage reply){
+        try {
+            reply.setPerformative(ACLMessage.INFORM);
+            reply.setOntology("Carta");
+            Carta resp = cartas.remove(carta);
+            reply.setContentObject(resp);
+            myAgent.send(reply);
+            //System.out.println("O "+reply.getSender().getLocalName()+" colocou a carta " + resp + " na mesa");
+        } catch (IOException ex) {
+            Logger.getLogger(ReceberMensagemJogador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
     private void comunicar(){
         System.out.println("Comunicar!");
     }
@@ -247,8 +287,8 @@ public class ReceberMensagemJogador extends Behaviour {
         }
     }
 
-    private boolean possoTrucar(boolean meuTimeTrucou, boolean parceiroGanhando, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int valorGanhando, int maiorValorPossivel) {
-        return !(meuTimeTrucou || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)));
+    private boolean possoTrucar(int meuTimeTrucou, boolean parceiroGanhando, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int valorGanhando, int maiorValorPossivel) {
+        return !(meuTimeTrucou == 1 || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)));
     }
     private boolean aceitarTruco(int rodada, List<Carta> cartas,int vencedorPrimeiraRodada, int vencedorSegundaRodada, int jogador, int jogadorGanhando, int valorGanhando, int quemTrucou) {
         comunicar();
@@ -287,5 +327,38 @@ public class ReceberMensagemJogador extends Behaviour {
             soma -= 0.2;
         }        
         return gerador.nextDouble() > (1 - soma);
+    }
+    private void ordenarCartas(Carta carta1, Carta carta2, Carta carta3) {
+        if ((carta1.compareTo(carta2) < 0) && (carta1.compareTo(carta3) < 0)) {
+            if (carta2.compareTo(carta3) < 0) {
+                cartas.add(carta1);
+                cartas.add(carta2);
+                cartas.add(carta3);
+            } else {
+                cartas.add(carta1);
+                cartas.add(carta3);
+                cartas.add(carta2);
+            }
+        } else if ((carta2.compareTo(carta1) < 0) && (carta2.compareTo(carta3) < 0)) {
+            if (carta1.compareTo(carta3) < 0) {
+                cartas.add(carta2);
+                cartas.add(carta1);
+                cartas.add(carta3);
+            } else {
+                cartas.add(carta2);
+                cartas.add(carta3);
+                cartas.add(carta1);
+            }
+        } else {
+            if (carta1.compareTo(carta2) < 0) {
+                cartas.add(carta3);
+                cartas.add(carta1);
+                cartas.add(carta2);
+            } else {
+                cartas.add(carta3);
+                cartas.add(carta2);
+                cartas.add(carta1);
+            }
+        }
     }
 }

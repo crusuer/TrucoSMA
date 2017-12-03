@@ -37,14 +37,11 @@ public class ProjetoSMATruco {
         //startMainContainer(Profile.LOCAL_HOST, Profile.LOCAL_PORT, "UFABC");
         startMainContainer("127.0.0.1", Profile.LOCAL_PORT, "UFABC");
 
-        Carta carta1 = new Carta(4, Naipes.Paus);
-        Carta carta2 = new Carta(3, Naipes.Ouro);
-        Carta carta3 = new Carta(7, Naipes.Espada);
-        
+                
         //adicionando agente
         //SINTAXE: addAgent(container, nome_do_agente, classe, parametros de inicializacao)
         addAgent(containerController, "Juiz", agentes.Juiz.class.getName(), null);
-        addAgent(containerController, "Jogador1", agentes.Jogador.class.getName(), new Object[]{carta1, carta2, carta3});
+        addAgent(containerController, "Jogador1", agentes.Jogador.class.getName(), null);
 
         //adicionando agente RMA
         //addAgent(containerController, "rma", "jade.tools.rma.rma", null);

@@ -5,17 +5,18 @@
  */
 package utils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import projetosmatruco.ProjetoSMATruco;
 
-public class Carta implements Comparable<Carta> {
+public class Carta implements Comparable<Carta>, Serializable {
 
     private int numero;
     private int naipe;
     private final String naipeStr;
     private int valor;
-    private static final Map<Integer, Integer> mapa = createMap();
+    private transient static final Map<Integer, Integer> mapa = createMap();
 
     private static Map<Integer, Integer> createMap() {
         //mapa do número da carta e seu respectivo valor no jogo

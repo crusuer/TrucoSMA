@@ -6,9 +6,16 @@
 package comportamentos;
 
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import projetosmatruco.ProjetoSMATruco;
+import utils.Carta;
 
 public class ReceberMensagemJuiz extends CyclicBehaviour 
 {   
@@ -20,11 +27,17 @@ public class ReceberMensagemJuiz extends CyclicBehaviour
     @Override
     public void action() 
     {
-       ACLMessage msg = myAgent.receive();
+        //iniciarPartida();
+        //jogada();
+       ACLMessage msg = myAgent.blockingReceive();
        if(msg != null)
        {
-          String content = msg.getContent();
-          System.out.println("--> " + msg.getSender().getName() + ": " + content);
+           try {
+               Carta content = (Carta) msg.getContentObject();
+               System.out.println("--> " + msg.getSender().getName() + ": " + content);
+           } catch (UnreadableException ex) {
+               Logger.getLogger(ReceberMensagemJuiz.class.getName()).log(Level.SEVERE, null, ex);
+           }
        }
        else 
        /*
@@ -33,6 +46,34 @@ public class ReceberMensagemJuiz extends CyclicBehaviour
        da CPU.
        */
            block();
+    }
+    private void iniciarPartida(){
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.addReceiver(new AID("Jogador1", AID.ISLOCALNAME));
+        msg.setLanguage("Portugues");
+        msg.setOntology("Iniciar");
+        try {
+            Carta carta1 = new Carta(4, ProjetoSMATruco.Naipes.Paus);
+            Carta carta2 = new Carta(3, ProjetoSMATruco.Naipes.Ouro);
+            Carta carta3 = new Carta(7, ProjetoSMATruco.Naipes.Espada);
+            msg.setContentObject(new Object[]{carta1, carta2, carta3});
+        } catch (IOException ex) {
+            Logger.getLogger(EnviarMensagemJuiz.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        myAgent.send(msg);
+    }
+    private void jogada() {
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.addReceiver(new AID("Jogador1", AID.ISLOCALNAME));
+        msg.setLanguage("Portugues");
+        msg.setOntology("Jogada");
+        try {
+            int[] lista = {1, 4, 2, 13, 14, 0, 0, 0};
+            msg.setContentObject(lista);
+        } catch (IOException ex) {
+            Logger.getLogger(EnviarMensagemJuiz.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        myAgent.send(msg);
     }
 }
 
