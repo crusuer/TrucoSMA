@@ -10,7 +10,6 @@ import jade.core.ProfileImpl;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import utils.Carta;
 
 /**
  *
@@ -21,15 +20,6 @@ public class ProjetoSMATruco {
     static ContainerController containerController;
     static AgentController agentController;
 
-    /*public enum CartasEnum {
-        Q(8), J(9), K(10), A(1);
-
-        public int numeroCarta;
-
-        CartasEnum(int numero) {
-            numeroCarta = numero;
-        }
-    }*/
     public enum Naipes{ Ouro, Espada, Copas, Paus };
 
     public static void main(String[] args) throws InterruptedException {
@@ -37,19 +27,21 @@ public class ProjetoSMATruco {
         //startMainContainer(Profile.LOCAL_HOST, Profile.LOCAL_PORT, "UFABC");
         startMainContainer("127.0.0.1", Profile.LOCAL_PORT, "UFABC");
 
-                
-        //adicionando agente
-        //SINTAXE: addAgent(container, nome_do_agente, classe, parametros de inicializacao)
-        addAgent(containerController, "Juiz", agentes.Juiz.class.getName(), null);
-        addAgent(containerController, "Jogador1", agentes.Jogador.class.getName(), null);
-
         //adicionando agente RMA
         //addAgent(containerController, "rma", "jade.tools.rma.rma", null);
         addAgent(containerController, "rma", jade.tools.rma.rma.class.getName(), null);
-
+        
         //Criando o agente Sniffer e definindo quais agentes ele irá controlar
         addAgent(containerController, "Sniffer", "jade.tools.sniffer.Sniffer",
-                new Object[]{"Juiz", ";", "Jogador1"});
+                new Object[]{"Juiz", ";", "Jogador1", ";", "Jogador2", ";", "Jogador3", ";", "Jogador4"});
+        
+        //adicionando agente
+        //SINTAXE: addAgent(container, nome_do_agente, classe, parametros de inicializacao)        
+        addAgent(containerController, "Jogador1", agentes.Jogador.class.getName(), null);
+        addAgent(containerController, "Jogador2", agentes.Jogador.class.getName(), null);
+        addAgent(containerController, "Jogador3", agentes.Jogador.class.getName(), null);
+        addAgent(containerController, "Jogador4", agentes.Jogador.class.getName(), null);
+        addAgent(containerController, "Juiz", agentes.Juiz.class.getName(), null);
     }
 
     public static void startMainContainer(String host, String port, String name) {

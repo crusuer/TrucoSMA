@@ -32,11 +32,16 @@ public class ReceberMensagemJuiz extends CyclicBehaviour
        ACLMessage msg = myAgent.blockingReceive();
        if(msg != null)
        {
-           try {
-               Carta content = (Carta) msg.getContentObject();
-               System.out.println("--> " + msg.getSender().getName() + ": " + content);
-           } catch (UnreadableException ex) {
-               Logger.getLogger(ReceberMensagemJuiz.class.getName()).log(Level.SEVERE, null, ex);
+           String tipoMensagem = msg.getOntology();
+           if (tipoMensagem.equalsIgnoreCase("Carta")) {
+               try {
+                   Carta content = (Carta) msg.getContentObject();
+                   System.out.println("--> " + msg.getSender().getName() + ": " + content);
+               } catch (UnreadableException ex) {
+                   Logger.getLogger(ReceberMensagemJuiz.class.getName()).log(Level.SEVERE, null, ex);
+               }
+           } else if (tipoMensagem.equalsIgnoreCase("Truco")) {
+               System.out.println("--> " + msg.getSender().getName() + ": Pediu truco!");
            }
        }
        else 
