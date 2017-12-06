@@ -212,7 +212,7 @@ public class ReceberMensagemJogador extends Behaviour {
     private void responderCarta(int carta, ACLMessage reply){
         try {
             reply.setPerformative(ACLMessage.INFORM);
-            reply.setContentObject(cartas.remove(carta));
+            reply.setContentObject(cartas.remove(carta));            
             myAgent.send(reply);
             //System.out.println("O "+reply.getSender().getLocalName()+" colocou a carta " + resp + " na mesa");
         } catch (IOException ex) {
@@ -223,8 +223,7 @@ public class ReceberMensagemJogador extends Behaviour {
     
     private void comunicar(ACLMessage reply){
         reply.setPerformative(ACLMessage.REQUEST);
-        //reply.setOntology("Comunicar");
-        myAgent.send(reply);
+        //myAgent.send(reply);
     }
     private boolean receberComunicado(boolean aceitar,List<Carta> cartas){
         if(aceitar || gerador.nextDouble() < 0.8){

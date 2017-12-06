@@ -14,7 +14,7 @@ import jade.core.Agent;
 public class Jogador extends Agent {
 
     @Override
-    protected void setup() {
+    protected void setup() {    	
         addBehaviour(new comportamentos.ReceberMensagemJogador(this));
     }    
 }
