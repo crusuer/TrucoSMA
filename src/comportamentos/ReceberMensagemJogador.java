@@ -34,9 +34,7 @@ public class ReceberMensagemJogador extends Behaviour {
 
         if (msg != null) {
             ACLMessage reply = msg.createReply();
-            //String content = msg.getContent();
-            String tipoMensagem = msg.getOntology();
-            if(tipoMensagem.equalsIgnoreCase("Iniciar")){
+            if(reply.getPerformative() == ACLMessage.SUBSCRIBE){
                 try {
                     cartas.clear();
                     Object[] carts = (Object[]) msg.getContentObject();
@@ -45,9 +43,10 @@ public class ReceberMensagemJogador extends Behaviour {
                     Logger.getLogger(ReceberMensagemJogador.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            else if(tipoMensagem.equalsIgnoreCase("Jogada")){
+            else if(reply.getPerformative() == ACLMessage.INFORM){
                 try {
                     int [] nums = (int[]) msg.getContentObject();
+                    //System.out.println(nums[0] +", "+ nums[1] +", "+ nums[2] +", "+ nums[3] +", "+ nums[4] +", "+ nums[5] +", "+ nums[6] +", "+ nums[7]);
                     decisao(cartas, reply, nums[0], nums[1], nums[2], nums[3], nums[4], nums[5], nums[6], nums[7]);
                 } catch (UnreadableException ex) {
                     Logger.getLogger(ReceberMensagemJogador.class.getName()).log(Level.SEVERE, null, ex);
@@ -213,9 +212,7 @@ public class ReceberMensagemJogador extends Behaviour {
     private void responderCarta(int carta, ACLMessage reply){
         try {
             reply.setPerformative(ACLMessage.INFORM);
-            reply.setOntology("Carta");
-            Carta resp = cartas.remove(carta);
-            reply.setContentObject(resp);
+            reply.setContentObject(cartas.remove(carta));
             myAgent.send(reply);
             //System.out.println("O "+reply.getSender().getLocalName()+" colocou a carta " + resp + " na mesa");
         } catch (IOException ex) {
@@ -225,8 +222,8 @@ public class ReceberMensagemJogador extends Behaviour {
     }
     
     private void comunicar(ACLMessage reply){
-        reply.setPerformative(ACLMessage.INFORM);
-        reply.setOntology("Comunicar");
+        reply.setPerformative(ACLMessage.REQUEST);
+        //reply.setOntology("Comunicar");
         myAgent.send(reply);
     }
     private boolean receberComunicado(boolean aceitar,List<Carta> cartas){
@@ -239,14 +236,13 @@ public class ReceberMensagemJogador extends Behaviour {
     }
 
     private void trucar(ACLMessage reply,int meuTimeTrucou, boolean parceiroGanhando, int vencedorPrimeiraRodada, int vencedorSegundaRodada, int valorGanhando, int maiorValorPossivel) {
-        if(!(meuTimeTrucou == 1 || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)))){
+        /*if(!(meuTimeTrucou == 1 || (parceiroGanhando == false && valorGanhando == maiorValorPossivel && (vencedorPrimeiraRodada == -1 || vencedorSegundaRodada == -1)))){
             responderTruco(reply);
         }
-        myAgent.blockingReceive();        
+        myAgent.blockingReceive(); */       
     }
     private void responderTruco(ACLMessage reply) {
-        reply.setPerformative(ACLMessage.INFORM);
-        reply.setOntology("Truco");
+        reply.setPerformative(ACLMessage.PROPOSE);
         myAgent.send(reply);
     }
     private boolean aceitarTruco(ACLMessage reply,int rodada, List<Carta> cartas,int vencedorPrimeiraRodada, int vencedorSegundaRodada, int jogador, int jogadorGanhando, int valorGanhando, int quemTrucou) {

@@ -24,7 +24,7 @@ public class Juiz extends Agent{
          System.out.println("Erro: " + e);
       } 
      
-      addBehaviour(new comportamentos.EnviarMensagemJuiz(this));
+      //addBehaviour(new comportamentos.EnviarMensagemJuiz(this));
       addBehaviour(new comportamentos.ReceberMensagemJuiz(this));     
    }
 }
