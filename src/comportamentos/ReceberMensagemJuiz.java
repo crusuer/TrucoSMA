@@ -48,7 +48,7 @@ public class ReceberMensagemJuiz extends CyclicBehaviour
     @Override
     public void action() 
     {
-    	System.out.println("DISTRIBUINDO CARTAS");
+    	System.out.println("\nDISTRIBUINDO CARTAS");
         iniciarPartida();
         boolean resp = false;
 		for (int rods = 1; rods < 4; rods++) {
@@ -72,10 +72,10 @@ public class ReceberMensagemJuiz extends CyclicBehaviour
 		System.out.println("\nPontuação Time1: "+pontoTime1);
 		System.out.println("Pontuação Time2: "+pontoTime2);
 		if(pontoTime1 > 11) { 
-			System.out.println("\nTime1 GANHOU!!!");
+			System.out.println("\nTime1 GANHOU O JOGO!!!");
 			myAgent.blockingReceive();
 		} else if(pontoTime2 > 11) { 
-			System.out.println("\nTime2 GANHOU!!!");
+			System.out.println("\nTime2 GANHOU O JOGO!!!");
 			myAgent.blockingReceive();
 		}
         

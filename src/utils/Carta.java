@@ -47,18 +47,6 @@ public class Carta implements Comparable<Carta>, Serializable {
         return numero;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
-    }
-
-    public int getNaipe() {
-        return naipe;
-    }
-
-    public void setNaipe(int naipe) {
-        this.naipe = naipe;
-    }
-
     public String getNaipeStr() {
         return naipeStr;
     }
