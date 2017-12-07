@@ -81,6 +81,6 @@ public class Carta implements Comparable<Carta>, Serializable {
     }
     @Override
     public String toString() {
-        return numero+" de "+naipeStr;
+        return ((numero == 8)? "Q": ((numero == 9)? "J": ((numero == 10)? "K":((numero == 1)? "A":numero))))+" de "+naipeStr;
     }
 }
